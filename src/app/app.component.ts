@@ -21,21 +21,10 @@ import { GoogleMapsLoaderService } from './google-maps-loader.service';
     InputTextModule
   ],
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements AfterViewInit {
   googleLoaded = false;
-
-  set sidebarVisible(value: boolean) {
-    console.log("Sidebar visibility changed:", value);
-    this._sidebarVisible = value;
-  }
-
-  get sidebarVisible(): boolean {
-    return this._sidebarVisible;
-  }
-
-  private _sidebarVisible = false;
 
   pointA = 'Paris, France';
   pointB = 'Versailles, France';
