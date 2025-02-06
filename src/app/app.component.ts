@@ -67,6 +67,7 @@ export class AppComponent implements AfterViewInit {
         this.directionsRendererDriving?.setMap(this.map.googleMap);
       }
     } catch (error) {
+      alert('Error loading Google Maps API');
       console.error('Error loading Google Maps API', error);
     }
   }
@@ -94,6 +95,7 @@ export class AppComponent implements AfterViewInit {
       return;
     }
     if (!this.directionsService) {
+      alert('Directions service not initialized.');
       console.error('Directions service not initialized.');
       return;
     }
@@ -122,6 +124,7 @@ export class AppComponent implements AfterViewInit {
               this.cdr.detectChanges();
               console.log('Transit route success :', result);
             } else {
+              alert('Error calculating transit route : ' + status);
               console.error('Error calculating transit route : ' + status);
             }
           }
@@ -154,6 +157,7 @@ export class AppComponent implements AfterViewInit {
             this.cdr.detectChanges();
             console.log('Car route success :', result);
           } else {
+            alert('Error calculating car route : ' + status);
             console.error('Error calculating car route : ' + status);
           }
         }
