@@ -39,6 +39,9 @@ export class AppComponent implements AfterViewInit {
   directionsRendererDriving!: google.maps.DirectionsRenderer;
   directionsService!: google.maps.DirectionsService;
 
+  durationTransit: string | null = null;
+  durationDriving: string | null = null;
+
   constructor(
     private googleMapsLoader: GoogleMapsLoaderService,
     private cdr: ChangeDetectorRef,
@@ -82,6 +85,10 @@ export class AppComponent implements AfterViewInit {
    */
   calculateRoutes(): void {
     console.log('Calculating routes...');
+
+    this.durationTransit = null;
+    this.durationDriving = null;
+
     if (!this.pointA || (!this.pointB && !this.pointC)) {
       alert('Please enter a valid address for point A and at least point B or point C.');
       return;
@@ -96,7 +103,10 @@ export class AppComponent implements AfterViewInit {
       const requestTransit: google.maps.DirectionsRequest = {
         origin: this.pointA,
         destination: this.pointB,
-        travelMode: google.maps.TravelMode.TRANSIT
+        travelMode: google.maps.TravelMode.TRANSIT,
+        transitOptions: {
+          arrivalTime: new Date(new Date().setHours(18, 0, 0, 0)),
+        }
       };
 
       if (this.directionsService) {
@@ -108,6 +118,7 @@ export class AppComponent implements AfterViewInit {
           ) => {
             if (status === google.maps.DirectionsStatus.OK && result) {
               this.directionsRendererTransit.setDirections(result);
+              this.durationTransit = result.routes[0]?.legs[0]?.duration?.text || 'N/A';
               this.cdr.detectChanges();
               console.log('Transit route success :', result);
             } else {
@@ -139,6 +150,7 @@ export class AppComponent implements AfterViewInit {
         ) => {
           if (status === google.maps.DirectionsStatus.OK && result) {
             this.directionsRendererDriving?.setDirections(result);
+            this.durationDriving = result.routes[0]?.legs[0]?.duration?.text || 'N/A';
             this.cdr.detectChanges();
             console.log('Car route success :', result);
           } else {
