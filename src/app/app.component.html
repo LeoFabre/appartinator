@@ -4,19 +4,34 @@
     <h3>Routes config</h3>
     <div class="p-field">
       <p>Point A (Start)</p>
-      <input id="pointA" type="text" pInputText [(ngModel)]="pointA" placeholder="Adresse du point A">
+      <input
+        [style]="{'width':'100%'}"
+        id="pointA"
+        type="text"
+        pInputText [(ngModel)]="pointA"
+        placeholder="Adresse du point A"
+      />
     </div>
     <div class="p-field">
       <p>Point B (by transit)</p>
-      <input id="pointB" type="text" pInputText [(ngModel)]="pointB" placeholder="Adresse du point B">
+      <input
+        [style]="{'width':'100%'}"
+        id="pointB"
+        type="text"
+        pInputText [(ngModel)]="pointB"
+        placeholder="Adresse du point B"
+      />
     </div>
     <div class="p-field mb-3">
       <p>Point C (by car, arrival Tuesday at 9am)</p>
       <div class="flex flex-grow-1">
         <input
           [style]="{'width':'100%'}"
-          id="pointC" type="text" pInputText [(ngModel)]="pointC"
-               placeholder="Adresse du point C">
+          id="pointC"
+          type="text"
+          pInputText [(ngModel)]="pointC"
+               placeholder="Adresse du point C"
+        />
       </div>
     </div>
     <div class="flex justify-content-center flex-grow-1">
