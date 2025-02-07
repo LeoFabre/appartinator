@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
@@ -13,14 +13,17 @@ import { travelModes } from '../interfaces/travelModes';
   standalone: true,
   imports: [CommonModule, DialogModule, ButtonModule, DividerModule, Scroller],
   templateUrl: './route-details-dialog.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RouteDetailsDialogComponent {
   @Input() route!: RouteDetails;
   @Input() visible = false;
   @Output() visibleChange = new EventEmitter<boolean>();
 
-  constructor(private sanitizer: DomSanitizer) {}
+  constructor(
+    private sanitizer: DomSanitizer,
+    private cdr: ChangeDetectorRef,
+  ) {}
 
   sanitizeInstruction(instruction: string): SafeHtml {
     return this.sanitizer.bypassSecurityTrustHtml(instruction);
@@ -29,9 +32,11 @@ export class RouteDetailsDialogComponent {
   closeDialog(): void {
     this.visible = false;
     this.visibleChange.emit(this.visible);
+    this.cdr.detectChanges();
   }
 
   protected readonly travelModes = travelModes;
+
   getTravelModeLabel(mode: 'DRIVING' | 'TRANSIT'): string {
     return travelModes.find((travelMode) => travelMode.value === mode)?.label || '';
   }
