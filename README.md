@@ -2,12 +2,13 @@
 
 ### Ever struggled to find the perfect apartment because of geographical constraints?  
 
-You want to live near your workplace, but you also want to be close to the city center?  
+You want to live near your workplace, but you don't know where to start looking?  
 
 Your kids go to school in a specific area, but you want to live in a neighborhood with a park?  
 
-Your wife doesn't drive, but you want to live close enough to your workplace to avoid long commutes?  
+Your loved one doesn't drive, but you want to live close enough to your workplace to avoid long commutes?  
 
+You have a hard time simulating all the possible routes from every new place you want to search for an apartment?
 
 ### **Appartinator** is here to help you!
 
