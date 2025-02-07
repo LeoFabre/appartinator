@@ -104,6 +104,9 @@ export class AppComponent implements AfterViewInit {
   }
 
   removeRoute(index: number): void {
+    if (this.routes[index].directionsRenderer) {
+      this.routes[index].directionsRenderer.setMap(null);
+    }
     this.routes.splice(index, 1);
     this.lastAddedRouteIndex--;
     if (this.lastAddedRouteIndex < 0) {
