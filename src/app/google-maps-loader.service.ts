@@ -1,8 +1,6 @@
-// src/app/google-maps-loader.service.ts
 import { Injectable } from '@angular/core';
 import { environment } from '../environments/environment';
 
-// Étendre l'interface Window pour inclure initMap
 declare global {
   interface Window {
     initMap: () => void;
@@ -22,7 +20,6 @@ export class GoogleMapsLoaderService {
         return;
       }
 
-      // Définir la fonction de callback sur l'objet global window
       window.initMap = () => {
         this.loaded = true;
         resolve();
