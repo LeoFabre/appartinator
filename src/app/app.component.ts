@@ -143,7 +143,7 @@ export class AppComponent implements AfterViewInit {
         } else if (route.mode === 'DRIVING') {
           request.drivingOptions = {
             departureTime: route.arrivalTime,
-            trafficModel: google.maps.TrafficModel.BEST_GUESS
+            trafficModel: google.maps.TrafficModel.PESSIMISTIC
           };
         }
       }
