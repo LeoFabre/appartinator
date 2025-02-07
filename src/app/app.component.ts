@@ -78,6 +78,14 @@ export class AppComponent implements AfterViewInit {
       this.googleLoaded = true;
       this.cdr.detectChanges();
       this.directionsService = new google.maps.DirectionsService();
+
+      // Initialize directionsRenderer for preloaded routes (useful if you need to hardcode a default routes state)
+      this.routes.forEach(route => {
+        route.directionsRenderer = new google.maps.DirectionsRenderer({
+          suppressMarkers: false,
+          polylineOptions: { strokeColor: this.getRandomColor() }
+        });
+      });
     } catch (error) {
       alert('Error loading Google Maps API');
       console.error('Error loading Google Maps API', error);
