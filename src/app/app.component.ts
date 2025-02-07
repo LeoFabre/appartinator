@@ -14,11 +14,13 @@ import { GoogleMapsLoaderService } from './google-maps-loader.service';
 import { Select } from 'primeng/select';
 import { ScrollPanel } from 'primeng/scrollpanel';
 
+import { RouteDetailsDialogComponent } from './route-details-dialog/route-details-dialog.component';
+
+
 interface RoutePoint {
   destination: string;
   mode: 'DRIVING' | 'TRANSIT';
   specifyTime: boolean;
-  showConfig: boolean;
   arrivalTime?: Date;
   duration?: string;
   directionsRenderer?: google.maps.DirectionsRenderer;
@@ -39,6 +41,7 @@ interface RoutePoint {
     AccordionModule,
     Select,
     ScrollPanel,
+    RouteDetailsDialogComponent,
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
@@ -47,6 +50,9 @@ export class AppComponent implements AfterViewInit {
   googleLoaded = false;
   pointA = 'Paris, France';
   routes: RoutePoint[] = [];
+
+  selectedRoute?: RoutePoint;
+  isDialogVisible = false;
 
   center: google.maps.LatLngLiteral = { lat: 48.8566, lng: 2.3522 };
   zoom = 11;
@@ -60,7 +66,6 @@ export class AppComponent implements AfterViewInit {
     { label: 'Driving', value: 'DRIVING' },
     { label: 'Transit', value: 'TRANSIT' }
   ];
-
 
   constructor(
     private googleMapsLoader: GoogleMapsLoaderService,
@@ -79,12 +84,16 @@ export class AppComponent implements AfterViewInit {
     }
   }
 
+  openRouteDetails(route: RoutePoint): void {
+    this.selectedRoute = route;
+    this.isDialogVisible = true;
+  }
+
   addRoute(): void {
     this.routes.push({
       destination: '',
       mode: this.travelModes[0].value, // Default to driving
       specifyTime: false,
-      showConfig: true,
       directionsRenderer: new google.maps.DirectionsRenderer({
         suppressMarkers: false,
         polylineOptions: { strokeColor: this.getRandomColor() }
@@ -131,7 +140,7 @@ export class AppComponent implements AfterViewInit {
         } else if (route.mode === 'DRIVING' && route.arrivalTime) {
           request.drivingOptions = {
             departureTime: route.arrivalTime,
-            trafficModel: google.maps.TrafficModel.BEST_GUESS
+            trafficModel: google.maps.TrafficModel.PESSIMISTIC
           };
         }
       }

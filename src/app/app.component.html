@@ -89,11 +89,21 @@
     <div class="sidebar-bottom-section flex flex-column">
       @if (routes.length > 0 && hasCalculatedRoutes()) {
         <p-scrollPanel class="routes-footer flex" [style]="{ width: '100%', maxHeight: '200px' }">
-          <h4>Durée des trajets</h4>
+          <h4>Route durations</h4>
           <div>
             <p *ngFor="let route of routes; let i = index">
-              🛣️ Route {{ i + 1 }} ({{ route.mode }}) : {{ route.duration || 'N/A' }}
+
+              <span class="cursor-pointer text-primary" (click)="openRouteDetails(route)">
+                {{route.mode === 'DRIVING' ? '🚗' : '🚇'}} Route {{ i + 1 }} : {{ route.duration || 'N/A' }}
+              </span>
             </p>
+
+            <!-- Route Details Dialog -->
+            <app-route-details-dialog
+              *ngIf="selectedRoute"
+              [route]="selectedRoute"
+              [(visible)]="isDialogVisible">
+            </app-route-details-dialog>
           </div>
         </p-scrollPanel>
       }

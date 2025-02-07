@@ -1,0 +1,16 @@
+<p-dialog [(visible)]="visible" [modal]="true" [style]="{ width: '25rem' }">
+  <ng-template #header>
+    <div class="inline-flex items-center justify-center gap-2">
+      <span class="font-bold whitespace-nowrap">Route Details</span>
+    </div>
+  </ng-template>
+  <div *ngIf="route">
+    <p><strong>Destination:</strong> {{ route.destination }}</p>
+    <p><strong>Mode:</strong> {{ route.mode }}</p>
+    <p><strong>Duration:</strong> {{ route.duration || 'N/A' }}</p>
+    <p *ngIf="route.arrivalTime"><strong>Arrival Time:</strong> {{ route.arrivalTime | date: 'short' }}</p>
+  </div>
+  <ng-template #footer>
+    <p-button label="Close" [text]="true" severity="secondary" (click)="closeDialog()" />
+  </ng-template>
+</p-dialog>
