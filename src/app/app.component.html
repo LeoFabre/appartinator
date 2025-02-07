@@ -1,57 +1,111 @@
-<!-- Sidebar de configuration -->
-<div class="flex routes-sidebar">
-  <div [style.width.px]="300" class="px-4">
-    <h3>Routes config</h3>
-    <div class="p-field">
-      <p>Point A (Start)</p>
-      <input
-        [style]="{'width':'100%'}"
-        id="pointA"
-        type="text"
-        pInputText [(ngModel)]="pointA"
-        placeholder="Adresse du point A"
-      />
-    </div>
-    <div class="p-field">
-      <p>Point B (by transit)</p>
-      <input
-        [style]="{'width':'100%'}"
-        id="pointB"
-        type="text"
-        pInputText [(ngModel)]="pointB"
-        placeholder="Adresse du point B"
-      />
-    </div>
-    <div class="p-field mb-3">
-      <p>Point C (by car, arrival Tuesday at 9am)</p>
-      <div class="flex flex-grow-1">
+<div class="flex ">
+  <div class="routes-sidebar px-4">
+
+    <!-- Scrollable Routes Config Section -->
+    <div class="sidebar-top-section flex flex-grow-1 flex-column">
+      <h3>Routes Config</h3>
+
+      <div class="p-field">
+        <p>Point A (Start)</p>
         <input
-          [style]="{'width':'100%'}"
-          id="pointC"
           type="text"
-          pInputText [(ngModel)]="pointC"
-               placeholder="Adresse du point C"
+          pInputText
+          [(ngModel)]="pointA"
+          placeholder="Adresse du point A"
+          [style]="{'width':'100%'}"
         />
       </div>
+
+      <h4>Destinations</h4>
+      <div class="flex flex-column flex-grow-1">
+        <p-scrollPanel [style]="{ width: '100%', height: '100%' }">
+          <div *ngFor="let route of routes; let i = index">
+            <p-accordion [multiple]="true" [value]="lastAddedRouteIndex">
+              <p-accordion-panel [value]=i>
+                <p-accordion-header>
+                  <span class="flex items-center gap-2 w-full">Destination {{ i + 1 }}</span>
+                  <button pButton icon="pi pi-trash" class="p-button-text mr-2" (click)="removeRoute(i)"></button>
+                </p-accordion-header>
+                <p-accordion-content>
+                  <input
+                    type="text"
+                    pInputText
+                    [(ngModel)]="route.destination"
+                    placeholder="Adresse de destination"
+                    [style]="{'width':'100%'}"
+                  />
+
+                  <div class="flex align-items-center mt-2">
+                    <p-select
+                      class="w-full md:w-56"
+                      [options]="travelModes"
+                      [(ngModel)]="route.mode"
+                      appendTo="body"
+                    />
+                  </div>
+
+                  <!-- Date/Time specification -->
+                  <div class="mt-2">
+                    @if (route.specifyTime) {
+                      <div class="flex">
+                        <div class="flex flex-grow-1" style="width: 80%">
+                          <p-calendar
+                            [(ngModel)]="route.arrivalTime"
+                            [showTime]="true"
+                            hourFormat="24"
+                            placeholder="Date/Heure"
+                            appendTo="body"
+                          />
+                        </div>
+                        <div class="flex flex-grow-0">
+                          <p-button
+                            icon="pi pi-times"
+                            class="ml-2"
+                            [variant]="'text'"
+                            (click)="route.specifyTime = false;
+                            route.arrivalTime = undefined;"
+                          />
+                        </div>
+                      </div>
+                    } @else {
+                      <div class="flex justify-content-center">
+                        <p-button label="Specify Date/Time" size="small" icon="pi pi-calendar-clock"
+                                  (click)="route.specifyTime = true"/>
+                      </div>
+                    }
+                  </div>
+                </p-accordion-content>
+              </p-accordion-panel>
+            </p-accordion>
+          </div>
+        </p-scrollPanel>
+        <div class="flex justify-content-center align-content-center">
+          <p-button icon="pi pi-plus-circle" label="Ajouter une destination" class="mt-2" (click)="addRoute()"/>
+        </div>
+      </div>
     </div>
-    <div class="flex justify-content-center flex-grow-1">
-      <p-button label="Get routes ! 🚀" (click)="calculateRoutes()"/>
-    </div>
-    <div class="mt-7 border-round bg-gray-100">
-      <h4>Durée des trajets</h4>
-      <p *ngIf="durationTransit">🚇 Transport : {{ durationTransit }}</p>
-      <p *ngIf="durationDriving">🚗 Voiture : {{ durationDriving }}</p>
-      <p *ngIf="!durationTransit && !durationDriving" class="text-muted">Aucune donnée pour l'instant.</p>
+
+    <!-- Fixed Bottom Section  (durations, get-routes button) -->
+    <div class="sidebar-bottom-section flex flex-column">
+      @if (routes.length > 0 && hasCalculatedRoutes()) {
+        <p-scrollPanel class="routes-footer flex" [style]="{ width: '100%', maxHeight: '200px' }">
+          <h4>Durée des trajets</h4>
+          <div>
+            <p *ngFor="let route of routes; let i = index">
+              🛣️ Route {{ i + 1 }} ({{ route.mode }}) : {{ route.duration || 'N/A' }}
+            </p>
+          </div>
+        </p-scrollPanel>
+      }
+      <div class="flex justify-content-center">
+        <p-button label="Get routes ! 🚀" class="my-2" (click)="calculateRoutes()"/>
+      </div>
     </div>
   </div>
+
   <div class="flex-grow-1">
     @if (googleLoaded) {
-      <google-map
-        height="100vh"
-        width="100%"
-        [center]="center"
-        [zoom]="zoom"
-      />
+      <google-map height="100vh" width="100%" [center]="center" [zoom]="zoom"></google-map>
     } @else {
       <p>Loading Google Maps...</p>
     }
