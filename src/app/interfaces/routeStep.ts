@@ -2,7 +2,7 @@ export interface RouteStep {
   instruction: string;
   duration: string;
   distance: string;
-  travelMode: 'DRIVING' | 'TRANSIT';
+  travelMode: google.maps.TravelMode;
   transitDetails?: {
     line: string;
     departureStop: string;

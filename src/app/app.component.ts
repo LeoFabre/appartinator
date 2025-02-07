@@ -16,7 +16,8 @@ import { ScrollPanel } from 'primeng/scrollpanel';
 
 import { RouteDetailsDialogComponent } from './route-details-dialog/route-details-dialog.component';
 import { RoutePoint } from './interfaces/routePoint';
-import { travelModes } from './interfaces/travelModes';
+import { travelModesLabels$, initializeTravelModes } from './interfaces/travelModesLabels';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -36,11 +37,15 @@ import { travelModes } from './interfaces/travelModes';
     RouteDetailsDialogComponent,
   ],
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements AfterViewInit {
   googleLoaded = false;
-  pointA = 'Paris, France';
+  travelModesLoaded: boolean = false;
+  travelModesLabels$: Observable<{ label: string; value: google.maps.TravelMode }[]> = travelModesLabels$;
+
+
+  pointA = 'Poissy gare';
   routes: RoutePoint[] = [];
 
   selectedRoute?: RoutePoint;
@@ -58,6 +63,16 @@ export class AppComponent implements AfterViewInit {
     private googleMapsLoader: GoogleMapsLoaderService,
     private cdr: ChangeDetectorRef
   ) {}
+    private cdr: ChangeDetectorRef,
+  ) {
+  }
+
+  async ngOnInit(): Promise<void> {
+    await initializeTravelModes(this.googleMapsLoader);
+    console.log('Google Maps API and travel modes loaded');
+    this.travelModesLoaded = true;
+    this.cdr.detectChanges();
+  }
 
   async ngAfterViewInit(): Promise<void> {
     try {
@@ -65,14 +80,6 @@ export class AppComponent implements AfterViewInit {
       this.googleLoaded = true;
       this.cdr.detectChanges();
       this.directionsService = new google.maps.DirectionsService();
-
-      // Initialize directionsRenderer for preloaded routes (useful if you need to hardcode a default routes state)
-      this.routes.forEach(route => {
-        route.directionsRenderer = new google.maps.DirectionsRenderer({
-          suppressMarkers: false,
-          polylineOptions: { strokeColor: this.getRandomColor() }
-        });
-      });
     } catch (error) {
       alert('Error loading Google Maps API');
       console.error('Error loading Google Maps API', error);
@@ -80,11 +87,8 @@ export class AppComponent implements AfterViewInit {
   }
 
   openRouteDetails(route: RoutePoint): void {
-    if (this.selectedRoute !== route) {
-      this.selectedRoute = { ...route };
-    }
+    this.selectedRoute = { ...route };
     this.isDialogVisible = true;
-    // this.cdr.markForCheck();
     this.cdr.detectChanges();
   }
 
@@ -92,13 +96,13 @@ export class AppComponent implements AfterViewInit {
   addRoute(): void {
     this.routes.push({
       destination: '',
-      mode: travelModes[0].value, // Default to driving
+      mode: google.maps.TravelMode.DRIVING,
       specifyTime: false,
       directionsRenderer: new google.maps.DirectionsRenderer({
         suppressMarkers: false,
-        polylineOptions: { strokeColor: this.getRandomColor() }
+        polylineOptions: { strokeColor: this.getRandomColor() },
       }),
-      steps: []
+      steps: [],
     });
     this.lastAddedRouteIndex = this.routes.length - 1;
   }
@@ -134,7 +138,7 @@ export class AppComponent implements AfterViewInit {
       const request: google.maps.DirectionsRequest = {
         origin: this.pointA,
         destination: route.destination,
-        travelMode: google.maps.TravelMode[route.mode]
+        travelMode: google.maps.TravelMode[route.mode],
       };
 
       if (route.specifyTime && route.arrivalTime) {
@@ -143,7 +147,7 @@ export class AppComponent implements AfterViewInit {
         } else if (route.mode === 'DRIVING') {
           request.drivingOptions = {
             departureTime: route.arrivalTime,
-            trafficModel: google.maps.TrafficModel.PESSIMISTIC
+            trafficModel: google.maps.TrafficModel.PESSIMISTIC,
           };
         }
       }
@@ -158,24 +162,23 @@ export class AppComponent implements AfterViewInit {
           }
           // Extract step details
           route.steps = leg?.steps.map((step) => {
-            const transit = step.transit ? step.transit : undefined;
             return {
-              instruction: step.instructions,
+              instruction: step.instructions || 'No instruction available',
               duration: step.duration?.text || 'N/A',
               distance: step.distance?.text || 'N/A',
-              travelMode: step.travel_mode as 'DRIVING' | 'TRANSIT',
-              transitDetails: transit
+              travelMode: step.travel_mode,
+              transitDetails: step.travel_mode === google.maps.TravelMode.TRANSIT && step.transit
                 ? {
-                  line: transit.line?.short_name || '',
-                  departureStop: transit.departure_stop.name,
-                  departureTime: transit.departure_time.text,
-                  arrivalStop: transit.arrival_stop.name,
-                  arrivalTime: transit.arrival_time.text
+                  line: step.transit.line?.short_name || 'Unknown Line',
+                  departureStop: step.transit.departure_stop?.name || 'Unknown Stop',
+                  departureTime: step.transit.departure_time?.text || 'N/A',
+                  arrivalStop: step.transit.arrival_stop?.name || 'Unknown Stop',
+                  arrivalTime: step.transit.arrival_time?.text || 'N/A',
                 }
-                : undefined
+                : undefined,
             };
           }) || [];
-
+          console.log(`Steps for ${route.destination}:`, route.steps);
           this.cdr.detectChanges();
         } else {
           alert(`Error calculating route ${index + 1}: ${status}`);
@@ -193,5 +196,4 @@ export class AppComponent implements AfterViewInit {
     return colors[Math.floor(Math.random() * colors.length)];
   }
 
-  protected readonly travelModes = travelModes;
 }

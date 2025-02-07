@@ -2,7 +2,7 @@ import { RouteStep } from './routeStep';
 
 export interface RouteDetails {
   destination: string;
-  mode: 'DRIVING' | 'TRANSIT';
+  mode: google.maps.TravelMode;
   duration?: string;
   arrivalTime?: Date;
   steps: RouteStep[];

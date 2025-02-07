@@ -6,7 +6,7 @@ import { DividerModule } from 'primeng/divider';
 import { RouteDetails } from '../interfaces/routeDetails';
 import { Scroller } from 'primeng/scroller';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { travelModes } from '../interfaces/travelModes';
+import { getTravelModeLabel } from '../interfaces/travelModesLabels';
 
 @Component({
   selector: 'app-route-details-dialog',
@@ -35,9 +35,5 @@ export class RouteDetailsDialogComponent {
     this.cdr.detectChanges();
   }
 
-  protected readonly travelModes = travelModes;
-
-  getTravelModeLabel(mode: 'DRIVING' | 'TRANSIT'): string {
-    return travelModes.find((travelMode) => travelMode.value === mode)?.label || '';
-  }
+  protected readonly getTravelModeLabel = getTravelModeLabel;
 }

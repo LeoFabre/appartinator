@@ -38,13 +38,20 @@
                   />
 
                   <div class="flex align-items-center mt-2">
-                    <p-select
-                      class="w-full md:w-56"
-                      [options]="travelModes"
-                      [(ngModel)]="route.mode"
-                      appendTo="body"
-                    />
+                    <div *ngIf="(travelModesLabels$ | async) as travelModes; else loading">
+                      <p-select
+                        class="w-full md:w-56"
+                        [options]="travelModes"
+                        [(ngModel)]="route.mode"
+                        placeholder="Select a travel mode"
+                        appendTo="body"
+                      ></p-select>
+                    </div>
+                    <ng-template #loading>
+                      <p>Loading travel modes...</p>
+                    </ng-template>
                   </div>
+
 
                   <!-- Date/Time specification -->
                   <div class="mt-2">

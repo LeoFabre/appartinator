@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../environments/environment';
+import { Loader } from '@googlemaps/js-api-loader';
 
 declare global {
   interface Window {
@@ -12,28 +13,23 @@ declare global {
 })
 export class GoogleMapsLoaderService {
   private loaded = false;
+  private loader: Loader;
 
-  load(): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      if (this.loaded) {
-        resolve();
-        return;
-      }
+  constructor() {
+    this.loader = new Loader({
+      apiKey: environment.googleMapsApiKey,
+      version: 'weekly',
+    });
+  }
 
-      window.initMap = () => {
-        this.loaded = true;
-        resolve();
-      };
+  load(): Promise<typeof google> {
+    if (this.loaded) {
+      return Promise.resolve(google);
+    }
 
-      const script: HTMLScriptElement = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${environment.googleMapsApiKey}&callback=initMap`;
-      script.async = true;
-      script.defer = true;
-      script.onerror = () => {
-        reject(new Error('Erreur lors du chargement du script Google Maps.'));
-      };
-
-      document.head.appendChild(script);
+    return this.loader.load().then(() => {
+      this.loaded = true;
+      return google;
     });
   }
 }
