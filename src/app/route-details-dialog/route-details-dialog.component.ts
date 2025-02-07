@@ -1,28 +1,38 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
-
-interface RouteDetails {
-  destination: string;
-  mode: 'DRIVING' | 'TRANSIT';
-  duration?: string;
-  arrivalTime?: Date;
-}
+import { DividerModule } from 'primeng/divider';
+import { RouteDetails } from '../interfaces/routeDetails';
+import { Scroller } from 'primeng/scroller';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { travelModes } from '../interfaces/travelModes';
 
 @Component({
   selector: 'app-route-details-dialog',
   standalone: true,
-  imports: [CommonModule, DialogModule, ButtonModule],
+  imports: [CommonModule, DialogModule, ButtonModule, DividerModule, Scroller],
   templateUrl: './route-details-dialog.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RouteDetailsDialogComponent {
   @Input() route!: RouteDetails;
   @Input() visible = false;
   @Output() visibleChange = new EventEmitter<boolean>();
 
+  constructor(private sanitizer: DomSanitizer) {}
+
+  sanitizeInstruction(instruction: string): SafeHtml {
+    return this.sanitizer.bypassSecurityTrustHtml(instruction);
+  }
+
   closeDialog(): void {
     this.visible = false;
     this.visibleChange.emit(this.visible);
+  }
+
+  protected readonly travelModes = travelModes;
+  getTravelModeLabel(mode: 'DRIVING' | 'TRANSIT'): string {
+    return travelModes.find((travelMode) => travelMode.value === mode)?.label || '';
   }
 }

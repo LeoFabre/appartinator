@@ -3,15 +3,17 @@
 
     <!-- Scrollable Routes Config Section -->
     <div class="sidebar-top-section flex flex-grow-1 flex-column">
-      <h3>Routes Config</h3>
+      <div class="flex align-content-center justify-content-center">
+        <h3>🏢Appartinator🏢</h3>
+      </div>
 
       <div class="p-field">
-        <p>Point A (Start)</p>
+        <p>Start Address</p>
         <input
           type="text"
           pInputText
           [(ngModel)]="pointA"
-          placeholder="Adresse du point A"
+          placeholder="Start Address"
           [style]="{'width':'100%'}"
         />
       </div>
@@ -69,7 +71,7 @@
                       </div>
                     } @else {
                       <div class="flex justify-content-center">
-                        <p-button label="Specify Date/Time" size="small" icon="pi pi-calendar-clock"
+                        <p-button label="Specify arrival Date/Time" size="small" icon="pi pi-calendar-clock"
                                   (click)="route.specifyTime = true"/>
                       </div>
                     }
@@ -80,7 +82,7 @@
           </div>
         </p-scrollPanel>
         <div class="flex justify-content-center align-content-center">
-          <p-button icon="pi pi-plus-circle" label="Ajouter une destination" class="mt-2" (click)="addRoute()"/>
+          <p-button icon="pi pi-plus-circle" label="Add a destination" class="mt-2" (click)="addRoute()"/>
         </div>
       </div>
     </div>
@@ -94,7 +96,7 @@
             <p *ngFor="let route of routes; let i = index">
 
               <span class="cursor-pointer text-primary" (click)="openRouteDetails(route)">
-                {{route.mode === 'DRIVING' ? '🚗' : '🚇'}} Route {{ i + 1 }} : {{ route.duration || 'N/A' }}
+                {{ route.mode === 'DRIVING' ? '🚗' : '🚇' }} Route {{ i + 1 }} : {{ route.duration || 'N/A' }}
               </span>
             </p>
 

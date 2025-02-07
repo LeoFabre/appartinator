@@ -1,8 +1,8 @@
-import { Component, AfterViewInit, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-import { GoogleMapsModule, GoogleMap } from '@angular/google-maps';
+import { GoogleMap, GoogleMapsModule } from '@angular/google-maps';
 import { SidebarModule } from 'primeng/sidebar';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -15,16 +15,8 @@ import { Select } from 'primeng/select';
 import { ScrollPanel } from 'primeng/scrollpanel';
 
 import { RouteDetailsDialogComponent } from './route-details-dialog/route-details-dialog.component';
-
-
-interface RoutePoint {
-  destination: string;
-  mode: 'DRIVING' | 'TRANSIT';
-  specifyTime: boolean;
-  arrivalTime?: Date;
-  duration?: string;
-  directionsRenderer?: google.maps.DirectionsRenderer;
-}
+import { RoutePoint } from './interfaces/routePoint';
+import { travelModes } from './interfaces/travelModes';
 
 @Component({
   selector: 'app-root',
@@ -62,11 +54,6 @@ export class AppComponent implements AfterViewInit {
   directionsService!: google.maps.DirectionsService;
   lastAddedRouteIndex: number = 0;
 
-  travelModes: { label: string; value: 'DRIVING' | 'TRANSIT' }[] = [
-    { label: 'Driving', value: 'DRIVING' },
-    { label: 'Transit', value: 'TRANSIT' }
-  ];
-
   constructor(
     private googleMapsLoader: GoogleMapsLoaderService,
     private cdr: ChangeDetectorRef
@@ -93,19 +80,25 @@ export class AppComponent implements AfterViewInit {
   }
 
   openRouteDetails(route: RoutePoint): void {
-    this.selectedRoute = route;
+    if (this.selectedRoute !== route) {
+      this.selectedRoute = { ...route };
+    }
     this.isDialogVisible = true;
+    // this.cdr.markForCheck();
+    this.cdr.detectChanges();
   }
+
 
   addRoute(): void {
     this.routes.push({
       destination: '',
-      mode: this.travelModes[0].value, // Default to driving
+      mode: travelModes[0].value, // Default to driving
       specifyTime: false,
       directionsRenderer: new google.maps.DirectionsRenderer({
         suppressMarkers: false,
         polylineOptions: { strokeColor: this.getRandomColor() }
-      })
+      }),
+      steps: []
     });
     this.lastAddedRouteIndex = this.routes.length - 1;
   }
@@ -126,7 +119,6 @@ export class AppComponent implements AfterViewInit {
     }
     if (!this.directionsService) {
       alert('Directions service not initialized.');
-      console.error('Directions service not initialized.');
       return;
     }
 
@@ -142,28 +134,48 @@ export class AppComponent implements AfterViewInit {
         travelMode: google.maps.TravelMode[route.mode]
       };
 
-      if (route.specifyTime) {
-        if (route.mode === 'TRANSIT' && route.arrivalTime) {
+      if (route.specifyTime && route.arrivalTime) {
+        if (route.mode === 'TRANSIT') {
           request.transitOptions = { arrivalTime: route.arrivalTime };
-        } else if (route.mode === 'DRIVING' && route.arrivalTime) {
+        } else if (route.mode === 'DRIVING') {
           request.drivingOptions = {
             departureTime: route.arrivalTime,
-            trafficModel: google.maps.TrafficModel.PESSIMISTIC
+            trafficModel: google.maps.TrafficModel.BEST_GUESS
           };
         }
       }
 
       this.directionsService.route(request, (result, status) => {
         if (status === google.maps.DirectionsStatus.OK && result) {
+          const leg = result.routes[0]?.legs[0];
+          route.duration = leg?.duration?.text || 'N/A';
           if (route.directionsRenderer) {
             route.directionsRenderer.setDirections(result);
             route.directionsRenderer.setMap(this.map.googleMap!);
           }
-          route.duration = result.routes[0]?.legs[0]?.duration?.text || 'N/A';
+          // Extract step details
+          route.steps = leg?.steps.map((step) => {
+            const transit = step.transit ? step.transit : undefined;
+            return {
+              instruction: step.instructions,
+              duration: step.duration?.text || 'N/A',
+              distance: step.distance?.text || 'N/A',
+              travelMode: step.travel_mode as 'DRIVING' | 'TRANSIT',
+              transitDetails: transit
+                ? {
+                  line: transit.line?.short_name || '',
+                  departureStop: transit.departure_stop.name,
+                  departureTime: transit.departure_time.text,
+                  arrivalStop: transit.arrival_stop.name,
+                  arrivalTime: transit.arrival_time.text
+                }
+                : undefined
+            };
+          }) || [];
+
           this.cdr.detectChanges();
         } else {
           alert(`Error calculating route ${index + 1}: ${status}`);
-          console.error(`Error calculating route ${index + 1}:`, status);
         }
       });
     });
@@ -177,4 +189,6 @@ export class AppComponent implements AfterViewInit {
     const colors = ['#FF0000', '#0000FF', '#00FF00', '#FF00FF', '#00FFFF', '#FFA500'];
     return colors[Math.floor(Math.random() * colors.length)];
   }
+
+  protected readonly travelModes = travelModes;
 }

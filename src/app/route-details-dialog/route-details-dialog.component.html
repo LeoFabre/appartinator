@@ -1,15 +1,33 @@
-<p-dialog [(visible)]="visible" [modal]="true" [style]="{ width: '25rem' }">
+<p-dialog [(visible)]="visible" [modal]="true" [style]="{ width: '40rem' } ">
   <ng-template #header>
-    <div class="inline-flex items-center justify-center gap-2">
-      <span class="font-bold whitespace-nowrap">Route Details</span>
-    </div>
+      <h2 class="font-bold whitespace-nowrap">Route Details</h2>
   </ng-template>
+
   <div *ngIf="route">
     <p><strong>Destination:</strong> {{ route.destination }}</p>
-    <p><strong>Mode:</strong> {{ route.mode }}</p>
+    <p><strong>Mode:</strong> {{ getTravelModeLabel(route.mode) }}</p>
     <p><strong>Duration:</strong> {{ route.duration || 'N/A' }}</p>
-    <p *ngIf="route.arrivalTime"><strong>Arrival Time:</strong> {{ route.arrivalTime | date: 'short' }}</p>
+
+    <p-divider></p-divider>
+
+    <h4>Route Steps:</h4>
+    <p-virtual-scroller [items]="route.steps" [style]="{ height: '300px' }">
+      <ng-template let-step pTemplate="item">
+        <div class="p-2">
+          <p><strong>➡️</strong> <span [innerHTML]="sanitizeInstruction(step.instruction)"></span></p>
+          <p>🕒 Duration: {{ step.duration }} | 📏 Distance: {{ step.distance }}</p>
+
+          <div *ngIf="step.transitDetails">
+            <p>🚆 Line: {{ step.transitDetails.line }}</p>
+            <p>📍 From: {{ step.transitDetails.departureStop }} ({{ step.transitDetails.departureTime }})</p>
+            <p>📍 To: {{ step.transitDetails.arrivalStop }} ({{ step.transitDetails.arrivalTime }})</p>
+          </div>
+        </div>
+        <p-divider></p-divider>
+      </ng-template>
+    </p-virtual-scroller>
   </div>
+
   <ng-template #footer>
     <p-button label="Close" [text]="true" severity="secondary" (click)="closeDialog()" />
   </ng-template>
