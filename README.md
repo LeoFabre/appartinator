@@ -1,6 +1,41 @@
-# Appartinator
+# 🏢🏢🏢 APPARTINATOR 🏢🏢🏢
+
+### Ever struggled to find the perfect apartment because of geographical constraints?  
+
+You want to live near your workplace, but you also want to be close to the city center?  
+
+Your kids go to school in a specific area, but you want to live in a neighborhood with a park?  
+
+Your wife doesn't drive, but you want to live close enough to your workplace to avoid long commutes?  
+
+
+### **Appartinator** is here to help you!
+
+## What is Appartinator? 
+
+Appartinator is a web application that helps you calculate many routes at once, from a single starting point to multiple destinations.  
+For example, you can enter the address of the train station of the city where you're looking for an apartment, 
+and then enter the addresses of your workplace, your kids' school, and whatever other places you want to be close to.
+You can configure transportation modes (walking, biking, driving, public transport) and optionally set an arrival time to take into account traffic conditions.  
+
+_~~If you only know your constraints but not where to look for an apartment, you can click the "Find it for me!" button, and Appartinator will show you the best area(s) to live in, based on your destinations.~~ - maybe in the future !_ 🚀
+
+----
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.1.4.
+
+## Installation
+
+To install the project, run:
+
+```bash
+npm install
+```
+
+Then, you need to create a file named `environment.ts` in the `src/environments/` directory.
+There is a dummy file named `environment.dummy.ts` that you can use as a template.
+You will need to replace the dummy API key with your own Google Maps API key.
+
 
 ## Development server
 
